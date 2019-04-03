@@ -66,8 +66,8 @@ The environment is considered solved, when the average (over 100 episodes) of th
 #### Install drlnd environment
 1. Create (and activate) a new environment with Python 3.6.
 ```console
-conda create --name drlnd python=3.6
-source activate drlnd
+$ conda create --name drlnd python=3.6
+$ source activate drlnd
 ```
 
 2. Follow the instructions in this repository to perform a minimal install of [OpenAI gym](https://github.com/openai/gym).
