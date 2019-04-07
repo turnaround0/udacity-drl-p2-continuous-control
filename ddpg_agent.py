@@ -9,11 +9,19 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
+from noise import OUNoise
+
 
 class DDPGAgent():
     """Interacts with and learns from the environment."""
+    actor_target = None
+    actor_local = None
+    actor_optimizer = None
+    critic_target = None
+    critic_local = None
+    critic_optimizer = None
     
-    def __init__(self, state_size, action_size, memory, noise, device='cpu', params=None):
+    def __init__(self, state_size, action_size, memory, device='cpu', params=None):
         """Initialize an Agent object.
         
         Params
@@ -21,7 +29,6 @@ class DDPGAgent():
             state_size (int): dimension of each state
             action_size (int): dimension of each action
             memory (obj): Memory buffer to sample
-            noise (obj): Noise process
             device (str): device string between cuda:0 and cpu
             params (dict): hyper-parameters
         """
@@ -35,21 +42,30 @@ class DDPGAgent():
         self.seed = random.seed(params['seed'])
 
         # Actor Network (w/ Target Network)
-        self.actor_local = Actor(state_size, action_size, params['seed'], params['hidden_layers_actor']).to(device)
-        self.actor_target = Actor(state_size, action_size, params['seed'], params['hidden_layers_actor']).to(device)
-        self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=params['lr_actor'])
+        if not self.actor_local:
+            self.actor_local = Actor(state_size, action_size, params['seed'], params['hidden_layers_actor']).to(device)
+        if not self.actor_target:
+            self.actor_target = Actor(state_size, action_size, params['seed'], params['hidden_layers_actor']).to(device)
+        if not self.actor_optimizer:
+            self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=params['lr_actor'])
 
         # Critic Network (w/ Target Network)
-        self.critic_local = Critic(state_size, action_size, params['seed'], params['hidden_layers_critic']).to(device)
-        self.critic_target = Critic(state_size, action_size, params['seed'], params['hidden_layers_critic']).to(device)
-        self.critic_optimizer = optim.Adam(self.critic_local.parameters(),
-                                           lr=params['lr_critic'], weight_decay=params['weight_decay'])
+        if not self.critic_local:
+            self.critic_local = Critic(state_size, action_size, params['seed'], params['hidden_layers_critic']).to(device)
+        if not self.critic_target:
+            self.critic_target = Critic(state_size, action_size, params['seed'], params['hidden_layers_critic']).to(device)
+        if not self.critic_optimizer:
+            self.critic_optimizer = optim.Adam(self.critic_local.parameters(),
+                                               lr=params['lr_critic'], weight_decay=params['weight_decay'])
 
         # Noise process
-        self.noise = noise
+        self.noise = OUNoise(action_size, params['seed'])
 
         # Replay memory
         self.memory = memory
+
+        self.update_every = params['update_every']
+        self.t_step = 0
 
     def store_weights(self, filenames):
         """Store weights of Q local network
@@ -68,8 +84,10 @@ class DDPGAgent():
         # Save experience / reward
         self.memory.add(state, action, reward, next_state, done)
 
+        self.t_step = (self.t_step + 1) % self.update_every
+
         # Learn, if enough samples are available in memory
-        if len(self.memory) > self.memory.get_batch_size():
+        if self.t_step == 0 and len(self.memory) > self.memory.get_batch_size():
             experiences = self.memory.sample()
             self.learn(experiences, self.gamma)
 
