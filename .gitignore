@@ -1,8 +1,10 @@
 .ipynb_checkpoints/
+.vscode/
 Backup/
 Reacher_Linux/
 Reacher_Linux_NoVis/
 Reacher_One_Linux/
+Reacher_Linux_One_NoVis/
 __pycache__/
 unity-environment.log
 
