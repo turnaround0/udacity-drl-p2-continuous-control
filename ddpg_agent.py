@@ -3,18 +3,17 @@ import random
 import copy
 from collections import namedtuple, deque
 
-from model import Actor, Critic
+from ddpg_model import Actor, Critic
 
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
 
-class Agent():
+class DDPGAgent():
     """Interacts with and learns from the environment."""
     
-    def __init__(self, state_size, action_size, memory, noise,
-                 device='cpu', weights_filename=None, params=None, train_mode=True):
+    def __init__(self, state_size, action_size, memory, noise, device='cpu', params=None):
         """Initialize an Agent object.
         
         Params
@@ -24,9 +23,7 @@ class Agent():
             memory (obj): Memory buffer to sample
             noise (obj): Noise process
             device (str): device string between cuda:0 and cpu
-            weights_filename (str): file name having weights of local Q network to load
             params (dict): hyper-parameters
-            train_mode (bool): True if it is train mode, otherwise False            
         """
         self.state_size = state_size
         self.action_size = action_size
@@ -37,20 +34,14 @@ class Agent():
         self.tau = params['tau']
         self.seed = random.seed(params['seed'])
 
-        # Q-Network
-        if train_mode:
-            drop_p = params['drop_p']
-        else:
-            drop_p = 0
-
         # Actor Network (w/ Target Network)
-        self.actor_local = Actor(state_size, action_size, params['seed']).to(device)
-        self.actor_target = Actor(state_size, action_size, params['seed']).to(device)
+        self.actor_local = Actor(state_size, action_size, params['seed'], params['hidden_layers_actor']).to(device)
+        self.actor_target = Actor(state_size, action_size, params['seed'], params['hidden_layers_actor']).to(device)
         self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=params['lr_actor'])
 
         # Critic Network (w/ Target Network)
-        self.critic_local = Critic(state_size, action_size, params['seed']).to(device)
-        self.critic_target = Critic(state_size, action_size, params['seed']).to(device)
+        self.critic_local = Critic(state_size, action_size, params['seed'], params['hidden_layers_critic']).to(device)
+        self.critic_target = Critic(state_size, action_size, params['seed'], params['hidden_layers_critic']).to(device)
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(),
                                            lr=params['lr_critic'], weight_decay=params['weight_decay'])
 
@@ -59,7 +50,19 @@ class Agent():
 
         # Replay memory
         self.memory = memory
-    
+
+    def store_weights(self, filenames):
+        """Store weights of Q local network
+
+        Params
+        ======
+            filenames (list): string of filename to store weights of actor and critic
+                              filenames[0] = actor weights
+                              filenames[1] = critic weights
+        """
+        torch.save(self.actor_local.state_dict(), filenames[0])
+        torch.save(self.critic_local.state_dict(), filenames[1])
+
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory, and use random sample from buffer to learn."""
         # Save experience / reward
@@ -131,7 +134,8 @@ class Agent():
         self.soft_update(self.critic_local, self.critic_target, self.tau)
         self.soft_update(self.actor_local, self.actor_target, self.tau)
 
-    def soft_update(self, local_model, target_model, tau):
+    @staticmethod
+    def soft_update(local_model, target_model, tau):
         """Soft update model parameters.
         θ_target = τ*θ_local + (1 - τ)*θ_target
 
@@ -142,5 +146,4 @@ class Agent():
             tau (float): interpolation parameter 
         """
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
-            target_param.data.copy_(tau*local_param.data + (1.0 - tau)*target_param.data)
-
+            target_param.data.copy_(tau * local_param.data + (1.0 - tau) * target_param.data)
