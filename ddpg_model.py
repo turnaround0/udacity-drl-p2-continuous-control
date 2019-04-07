@@ -126,7 +126,7 @@ class Critic(nn.Module):
         return self.output(x)
         """
         xs = f.leaky_relu(self.fc1(state))
-        x = torch.cat((xs, action.type(torch.cuda.FloatTensor)), dim=1)
+        x = torch.cat((xs, action), dim=1)
         x = f.leaky_relu(self.fc2(x))
         return self.fc3(x)
 
