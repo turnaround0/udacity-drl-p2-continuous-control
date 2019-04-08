@@ -36,13 +36,17 @@ class DDPGAgent():
         self.seed = random.seed(params['seed'])
 
         # Actor Network (w/ Target Network)
-        self.actor_local = Actor(state_size, action_size, params['seed'], params['hidden_layers_actor']).to(device)
-        self.actor_target = Actor(state_size, action_size, params['seed'], params['hidden_layers_actor']).to(device)
+        self.actor_local = Actor(state_size, action_size, params['seed'],
+                                 params['actor_units'][0], params['actor_units'][1]).to(device)
+        self.actor_target = Actor(state_size, action_size, params['seed'],
+                                  params['actor_units'][0], params['actor_units'][1]).to(device)
         self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=params['lr_actor'])
 
         # Critic Network (w/ Target Network)
-        self.critic_local = Critic(state_size, action_size, params['seed'], params['hidden_layers_critic']).to(device)
-        self.critic_target = Critic(state_size, action_size, params['seed'], params['hidden_layers_critic']).to(device)
+        self.critic_local = Critic(state_size, action_size, params['seed'],
+                                   params['critic_units'][0], params['critic_units'][1]).to(device)
+        self.critic_target = Critic(state_size, action_size, params['seed'],
+                                    params['critic_units'][0], params['critic_units'][1]).to(device)
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(),
                                            lr=params['lr_critic'], weight_decay=params['weight_decay'])
 
