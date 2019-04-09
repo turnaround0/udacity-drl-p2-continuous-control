@@ -96,3 +96,8 @@ $ python -m ipykernel install --user --name drlnd --display-name "drlnd"
 
 5. Before running code in a notebook, change the kernel to match the drlnd environment
    by using the drop-down Kernel menu.
+
+### Files
+1. Jupyter notebook: Continuous_Control.ipynb
+2. Console training file: train.py
+3. Report: report.md
