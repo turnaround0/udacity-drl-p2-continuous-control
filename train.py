@@ -177,6 +177,6 @@ ddpg_scores = train(400, 5000, ddpg_agents, ["model_ddpg_actor.pth", "model_ddpg
 
 plot_scores(ddpg_scores, benchmark_score, rolling_n_episodes)
 
-test(ddpg_agent)
+test(ddpg_agents)
 
 env.close()
