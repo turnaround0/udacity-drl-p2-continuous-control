@@ -30,7 +30,8 @@ class Actor(nn.Module):
         self.fc2 = nn.Linear(fc1_units, fc2_units)
         self.fc3 = nn.Linear(fc2_units, action_size)
         
-        self.bn = nn.BatchNorm1d(fc1_units)
+        self.bn1 = nn.BatchNorm1d(fc1_units)
+        self.bn2 = nn.BatchNorm1d(fc2_units)
 
         self.reset_parameters()
 
@@ -46,9 +47,10 @@ class Actor(nn.Module):
             state = torch.unsqueeze(state, 0)
 
         x = f.leaky_relu(self.fc1(state))
-        x = self.bn(x)
+        x = self.bn1(x)
 
         x = f.leaky_relu(self.fc2(x))
+        x = self.bn2(x)
         
         return f.tanh(self.fc3(x))
 
