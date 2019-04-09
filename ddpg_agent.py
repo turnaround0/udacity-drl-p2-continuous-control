@@ -29,6 +29,8 @@ class DDPGAgent():
         self.state_size = state_size
         self.action_size = action_size
         self.device = device
+        self.step_t = 0
+        self.update_every = params['update_every']
 
         # Set parameters
         self.gamma = params['gamma']
@@ -73,8 +75,10 @@ class DDPGAgent():
         # Save experience / reward
         self.memory.add(state, action, reward, next_state, done)
 
+        self.step_t = (self.step_t + 1) % self.update_every
+
         # Learn, if enough samples are available in memory
-        if len(self.memory) > self.memory.get_batch_size():
+        if self.step_t == 0 and len(self.memory) > self.memory.get_batch_size():
             experiences = self.memory.sample()
             self.learn(experiences, self.gamma)
 
