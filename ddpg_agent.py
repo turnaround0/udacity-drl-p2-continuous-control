@@ -53,7 +53,7 @@ class DDPGAgent():
                                            lr=params['lr_critic'], weight_decay=params['weight_decay'])
 
         # Noise process
-        self.noise = OUNoise(action_size, params['seed'], params['noise_theta'], params['noise_sigma'])
+        self.noise = OUNoise(action_size, params['seed'], theta=params['noise_theta'], sigma=params['noise_sigma'])
 
         # Replay memory
         self.memory = memory
