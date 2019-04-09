@@ -24,7 +24,7 @@ memory_params = {
 params = {
     'gamma': 0.99,                      # discount factor
     'tau': 1e-3,                        # for soft update of target parameters
-    'update_every': 10,                 # update parameters per this number
+    'update_every': 1,                  # update parameters per this number
     'lr_actor': 3e-4,                   # learning rate of the Actor
     'lr_critic': 3e-4,                  # learning rate of the Critic
     'seed': 0,                          # Seed to generate random numbers
