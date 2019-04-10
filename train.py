@@ -178,6 +178,10 @@ ddpg_scores = train(300, 5000, ddpg_agents, ["model_ddpg_actor.pth", "model_ddpg
 
 plot_scores(ddpg_scores, benchmark_score, rolling_n_episodes)
 
+# Test
+ddpg_agents = [DDPGAgent(state_size, action_size, memory, torch_device, params)
+               for _ in range(num_agents)]
+
 for agent in ddpg_agents:
     agent.load_weights(["model_ddpg_actor.pth", "model_ddpg_critic.pth"])
 
