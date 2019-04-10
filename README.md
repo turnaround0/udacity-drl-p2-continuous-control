@@ -8,7 +8,8 @@
 
 ### Introduction
 
-This project is tested on Linux environment (Ubuntu 18.04) with the [Reacher](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#reacher) environment.
+This project is tested on Linux environment (Ubuntu 18.04) with the [Reacher](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#reacher) environment.<br>
+For test environment, option 1 (the First Version: one agent) was selected.
 
 ![Trained Agent][image1]
 
