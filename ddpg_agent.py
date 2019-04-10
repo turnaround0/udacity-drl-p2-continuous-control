@@ -59,11 +59,23 @@ class DDPGAgent():
         self.memory = memory
 
     def store_weights(self, filenames):
-        """Store weights of Q local network
+        """Store weights of Actor/Critic
 
         Params
         ======
             filenames (list): string of filename to store weights of actor and critic
+                              filenames[0] = actor weights
+                              filenames[1] = critic weights
+        """
+        torch.save(self.actor_local.state_dict(), filenames[0])
+        torch.save(self.critic_local.state_dict(), filenames[1])
+
+    def load_weights(self, filenames):
+        """Load weights of Actor/Critic
+
+        Params
+        ======
+            filenames (list): string of filename to load weights of actor and critic
                               filenames[0] = actor weights
                               filenames[1] = critic weights
         """
