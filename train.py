@@ -11,9 +11,9 @@ from collections import deque
 import matplotlib.pyplot as plt
 
 from replaybuffer import ReplayBuffer
-from ddpg_agent import DDPGAgent, MultiDDPGAgent, MultiDDPGAgent2
+from ddpg_agent import DDPGAgent
 
-reacher_filename = 'Reacher_Linux_NoVis/Reacher.x86_64'
+reacher_filename = 'Reacher_Linux_One_NoVis/Reacher.x86_64'
 
 memory_params = {
     'buffer_size': int(1e6),        # replay buffer size
@@ -86,15 +86,11 @@ def train(n_episodes=400, max_t=5000, agents=None, filenames=None,
         scores_window.append(avg_score)                    # save most recent score
         all_agent_scores.append(avg_score)                 # save most recent score
         avg_scores_window = np.mean(scores_window)         # get average score of current window
-        min_scores_window = np.min(scores_window)          # get min score of current window
-        max_scores_window = np.max(scores_window)          # get max score of current window
 
-        print('\rEpisode {}\tAverage Score: {:.2f} Min: {:.2f} Max: {:.2f}'.format(i_episode,
-              avg_scores_window, min_scores_window, max_scores_window), end="")
+        print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, avg_scores_window), end="")
         
         if i_episode % rolling_n_episodes == 0:
-            print('\rEpisode {}\tAverage Score: {:.2f} Min: {:.2f} Max: {:.2f}'.format(i_episode,
-                  avg_scores_window, min_scores_window, max_scores_window))
+            print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, avg_scores_window))
         
         if not avg_checked and avg_scores_window >= benchmark_score:
             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(
@@ -173,27 +169,11 @@ print('Device =', torch_device)
 memory = ReplayBuffer(action_size, memory_params['buffer_size'],
                       memory_params['batch_size'], memory_params['seed'], torch_device)
 
-print('DDPG Agent')
 ddpg_agents = [DDPGAgent(state_size, action_size, memory, torch_device, params)
                for _ in range(num_agents)]
 
-ddpg_scores = train(1, 5000, ddpg_agents, ["model_ddpg_actor.pth", "model_ddpg_critic.pth"],
+ddpg_scores = train(400, 5000, ddpg_agents, ["model_ddpg_actor.pth", "model_ddpg_critic.pth"],
                     benchmark_score, rolling_n_episodes)
-
-print('Multi DDPG Agent - Critic share')
-multi_ddpg_agents = [MultiDDPGAgent(state_size, action_size, memory, torch_device, params)
-                     for _ in range(num_agents)]
-
-ddpg_scores = train(1, 5000, multi_ddpg_agents, ["model_ddpg_actor.pth", "model_ddpg_critic.pth"],
-                    benchmark_score, rolling_n_episodes)
-
-print('Multi DDPG Agent2 - Actor/Critic share')
-multi_ddpg_agents2 = [MultiDDPGAgent2(state_size, action_size, memory, torch_device, params)
-                     for _ in range(num_agents)]
-
-ddpg_scores = train(1, 5000, multi_ddpg_agents2, ["model_ddpg_actor.pth", "model_ddpg_critic.pth"],
-                    benchmark_score, rolling_n_episodes)
-
 
 # plot_scores(ddpg_scores, benchmark_score, rolling_n_episodes)
 

@@ -38,37 +38,25 @@ class DDPGAgent():
         self.seed = random.seed(params['seed'])
 
         # Actor Network (w/ Target Network)
-        self.actor_local = None
-        self.actor_target = None
-        self.actor_optimizer = None
-        self.create_actor(state_size, action_size, params)
+        self.actor_local = Actor(state_size, action_size, params['seed'],
+                                 params['actor_units'][0], params['actor_units'][1]).to(device)
+        self.actor_target = Actor(state_size, action_size, params['seed'],
+                                  params['actor_units'][0], params['actor_units'][1]).to(device)
+        self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=params['lr_actor'])
 
         # Critic Network (w/ Target Network)
-        self.critic_local = None
-        self.critic_target =  None
-        self.critic_optimizer = None
-        self.create_critic(state_size, action_size, params)
+        self.critic_local = Critic(state_size, action_size, params['seed'],
+                                   params['critic_units'][0], params['critic_units'][1]).to(device)
+        self.critic_target = Critic(state_size, action_size, params['seed'],
+                                    params['critic_units'][0], params['critic_units'][1]).to(device)
+        self.critic_optimizer = optim.Adam(self.critic_local.parameters(),
+                                           lr=params['lr_critic'], weight_decay=params['weight_decay'])
 
         # Noise process
         self.noise = OUNoise(action_size, params['seed'], theta=params['noise_theta'], sigma=params['noise_sigma'])
 
         # Replay memory
         self.memory = memory
-
-    def create_actor(self, state_size, action_size, params):
-        self.actor_local = Actor(state_size, action_size, params['seed'],
-                                 params['actor_units'][0], params['actor_units'][1]).to(self.device)
-        self.actor_target = Actor(state_size, action_size, params['seed'],
-                                  params['actor_units'][0], params['actor_units'][1]).to(self.device)
-        self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=params['lr_actor'])
-
-    def create_critic(self, state_size, action_size, params):
-        self.critic_local = Critic(state_size, action_size, params['seed'],
-                                   params['critic_units'][0], params['critic_units'][1]).to(self.device)
-        self.critic_target = Critic(state_size, action_size, params['seed'],
-                                    params['critic_units'][0], params['critic_units'][1]).to(self.device)
-        self.critic_optimizer = optim.Adam(self.critic_local.parameters(),
-                                           lr=params['lr_critic'], weight_decay=params['weight_decay'])
 
     def store_weights(self, filenames):
         """Store weights of Q local network
@@ -79,8 +67,8 @@ class DDPGAgent():
                               filenames[0] = actor weights
                               filenames[1] = critic weights
         """
-        torch.save(self.actor_target.state_dict(), filenames[0])
-        torch.save(self.critic_target.state_dict(), filenames[1])
+        torch.save(self.actor_local.state_dict(), filenames[0])
+        torch.save(self.critic_local.state_dict(), filenames[1])
 
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory, and use random sample from buffer to learn."""
@@ -168,47 +156,3 @@ class DDPGAgent():
         """
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(tau * local_param.data + (1.0 - tau) * target_param.data)
-
-
-class MultiDDPGAgent(DDPGAgent):
-    # Critic is shared, but actor is separated.
-    critic_local = None
-    critic_target = None
-    critic_optimizer = None
-
-    def create_critic(self, state_size, action_size, params):
-        if not MultiDDPGAgent.critic_local:
-            MultiDDPGAgent.critic_local = Critic(state_size, action_size, params['seed'],
-                                                 params['critic_units'][0], params['critic_units'][1]).to(self.device)
-        self.critic_local = MultiDDPGAgent.critic_local
-
-        if not MultiDDPGAgent.critic_target:
-            MultiDDPGAgent.critic_target = Critic(state_size, action_size, params['seed'],
-                                                  params['critic_units'][0], params['critic_units'][1]).to(self.device)
-        self.critic_target =  MultiDDPGAgent.critic_target
-
-        if not MultiDDPGAgent.critic_optimizer:
-            MultiDDPGAgent.critic_optimizer = optim.Adam(self.critic_local.parameters(),
-                                                         lr=params['lr_critic'], weight_decay=params['weight_decay'])
-        self.critic_optimizer = MultiDDPGAgent.critic_optimizer
-
-
-class MultiDDPGAgent2(MultiDDPGAgent):
-    actor_local = None
-    actor_target = None
-    actor_optimizer = None
-
-    def create_actor(self, state_size, action_size, params):
-        if not MultiDDPGAgent2.actor_local:
-            MultiDDPGAgent2.actor_local = Actor(state_size, action_size, params['seed'],
-                                                params['actor_units'][0], params['actor_units'][1]).to(self.device)
-        self.actor_local = MultiDDPGAgent2.actor_local
-
-        if not MultiDDPGAgent2.actor_target:
-            MultiDDPGAgent2.actor_target = Actor(state_size, action_size, params['seed'],
-                                                 params['actor_units'][0], params['actor_units'][1]).to(self.device)
-        self.actor_target = MultiDDPGAgent2.actor_target
-
-        if not MultiDDPGAgent2.actor_optimizer:
-            MultiDDPGAgent2.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=params['lr_actor'])
-        self.actor_optimizer = MultiDDPGAgent2.actor_optimizer
