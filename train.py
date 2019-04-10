@@ -175,7 +175,7 @@ ddpg_agents = [DDPGAgent(state_size, action_size, memory, torch_device, params)
 ddpg_scores = train(300, 5000, ddpg_agents, ["model_ddpg_actor.pth", "model_ddpg_critic.pth"],
                     benchmark_score, rolling_n_episodes)
 
-# plot_scores(ddpg_scores, benchmark_score, rolling_n_episodes)
+plot_scores(ddpg_scores, benchmark_score, rolling_n_episodes)
 
 test(ddpg_agents)
 
