@@ -36,8 +36,7 @@ params = {
 }
 
 # Parameters to store and plot scores
-rolling_n_episodes = 100        # Score is checked whenever number of tries reachs to this.
-plot_rolling_n_episodes = 10    # Plot a line with average scores per this number of tries
+rolling_n_episodes = 10         # Score is checked whenever number of tries reachs to this.
 benchmark_score = 30.0          # Score of agent should be over this score
 
 
@@ -176,7 +175,7 @@ ddpg_agents = [DDPGAgent(state_size, action_size, memory, torch_device, params)
 ddpg_scores = train(300, 5000, ddpg_agents, ["model_ddpg_actor.pth", "model_ddpg_critic.pth"],
                     benchmark_score, rolling_n_episodes)
 
-# plot_scores(ddpg_scores, benchmark_score, plot_rolling_n_episodes)
+# plot_scores(ddpg_scores, benchmark_score, rolling_n_episodes)
 
 test(ddpg_agents)
 
