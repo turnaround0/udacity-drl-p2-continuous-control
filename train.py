@@ -25,8 +25,8 @@ params = {
     'gamma': 0.99,                      # discount factor
     'tau': 1e-3,                        # for soft update of target parameters
     'update_every': 1,                  # update parameters per this number
-    'lr_actor': 3e-4,                   # learning rate of the Actor
-    'lr_critic': 3e-4,                  # learning rate of the Critic
+    'lr_actor': 7e-5,                   # learning rate of the Actor
+    'lr_critic': 1e-4,                  # learning rate of the Critic
     'seed': 0,                          # Seed to generate random numbers
     'actor_units': [512, 256],          # Number of nodes in hidden layers of the Actor
     'critic_units': [512, 256],         # Number of nodes in hidden layers of the Critic
@@ -36,8 +36,9 @@ params = {
 }
 
 # Parameters to store and plot scores
-rolling_n_episodes = 10     # Score is checked whenever number of tries reachs to this.
-benchmark_score = 30.0      # Score of agent should be over this score
+rolling_n_episodes = 100        # Score is checked whenever number of tries reachs to this.
+plot_rolling_n_episodes = 10    # Plot a line with average scores per this number of tries
+benchmark_score = 30.0          # Score of agent should be over this score
 
 
 def train(n_episodes=400, max_t=5000, agents=None, filenames=None,
@@ -134,7 +135,7 @@ def plot_scores(scores, benchmark_score, rolling_n_episodes):
     
     rolling_window = rolling_n_episodes
     rolling_mean = pd.Series(scores).rolling(rolling_window).mean()
-    plt.plot(rolling_mean, c='yellow', alpha=0.7);
+    plt.plot(rolling_mean, c='yellow', alpha=0.7)
     
     plt.show()
 
@@ -172,10 +173,10 @@ memory = ReplayBuffer(action_size, memory_params['buffer_size'],
 ddpg_agents = [DDPGAgent(state_size, action_size, memory, torch_device, params)
                for _ in range(num_agents)]
 
-ddpg_scores = train(400, 5000, ddpg_agents, ["model_ddpg_actor.pth", "model_ddpg_critic.pth"],
+ddpg_scores = train(300, 5000, ddpg_agents, ["model_ddpg_actor.pth", "model_ddpg_critic.pth"],
                     benchmark_score, rolling_n_episodes)
 
-# plot_scores(ddpg_scores, benchmark_score, rolling_n_episodes)
+# plot_scores(ddpg_scores, benchmark_score, plot_rolling_n_episodes)
 
 test(ddpg_agents)
 
