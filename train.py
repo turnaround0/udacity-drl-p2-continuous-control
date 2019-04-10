@@ -110,7 +110,8 @@ def test(agents, max_t=5000):
     scores = np.zeros(len(agents))
 
     for t in range(max_t):
-        actions = [agent.act(states[i]) for i, agent in enumerate(agents)]  # select actions
+        # select actions
+        actions = [agent.act(states[i], add_noise=False) for i, agent in enumerate(agents)]
         env_info = env.step(actions)[brain_name]       # send the action to the environment
         rewards = env_info.rewards                     # get the reward
         dones = env_info.local_done                    # see if episode has finished
@@ -176,6 +177,9 @@ ddpg_scores = train(300, 5000, ddpg_agents, ["model_ddpg_actor.pth", "model_ddpg
                     benchmark_score, rolling_n_episodes)
 
 plot_scores(ddpg_scores, benchmark_score, rolling_n_episodes)
+
+for agent in ddpg_agents:
+    agent.load_weights(["model_ddpg_actor.pth", "model_ddpg_critic.pth"])
 
 test(ddpg_agents)
 
