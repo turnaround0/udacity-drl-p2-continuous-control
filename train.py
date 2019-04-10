@@ -177,21 +177,21 @@ print('DDPG Agent')
 ddpg_agents = [DDPGAgent(state_size, action_size, memory, torch_device, params)
                for _ in range(num_agents)]
 
-ddpg_scores = train(400, 5000, ddpg_agents, ["model_ddpg_actor.pth", "model_ddpg_critic.pth"],
+ddpg_scores = train(1, 5000, ddpg_agents, ["model_ddpg_actor.pth", "model_ddpg_critic.pth"],
                     benchmark_score, rolling_n_episodes)
 
 print('Multi DDPG Agent - Critic share')
 multi_ddpg_agents = [MultiDDPGAgent(state_size, action_size, memory, torch_device, params)
                      for _ in range(num_agents)]
 
-ddpg_scores = train(400, 5000, multi_ddpg_agents, ["model_ddpg_actor.pth", "model_ddpg_critic.pth"],
+ddpg_scores = train(1, 5000, multi_ddpg_agents, ["model_ddpg_actor.pth", "model_ddpg_critic.pth"],
                     benchmark_score, rolling_n_episodes)
 
 print('Multi DDPG Agent2 - Actor/Critic share')
 multi_ddpg_agents2 = [MultiDDPGAgent2(state_size, action_size, memory, torch_device, params)
                      for _ in range(num_agents)]
 
-ddpg_scores = train(400, 5000, multi_ddpg_agents2, ["model_ddpg_actor.pth", "model_ddpg_critic.pth"],
+ddpg_scores = train(1, 5000, multi_ddpg_agents2, ["model_ddpg_actor.pth", "model_ddpg_critic.pth"],
                     benchmark_score, rolling_n_episodes)
 
 
