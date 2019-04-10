@@ -79,8 +79,8 @@ class DDPGAgent():
                               filenames[0] = actor weights
                               filenames[1] = critic weights
         """
-        torch.save(self.actor_local.state_dict(), filenames[0])
-        torch.save(self.critic_local.state_dict(), filenames[1])
+        self.actor_local.load_state_dict(torch.load(filenames[0]))
+        self.critic_local.load_state_dict(torch.load(filenames[1]))
 
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory, and use random sample from buffer to learn."""
