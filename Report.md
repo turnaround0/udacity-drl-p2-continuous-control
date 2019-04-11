@@ -65,7 +65,7 @@ Also, batch normalization made an improvement.<br>
 But, batch normalization was ineffective just before output layer of the Critic.<br>
 
 ### Plot of Rewards
-![](ddpg_plot.jpg)
+![Plot of rewards](ddpg_plot.png)
 
 ### Ideas for Future Work
 1. Test with multi-agents
